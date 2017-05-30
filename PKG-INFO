@@ -1,6 +1,6 @@
 Metadata-Version: 1.1
 Name: jws
-Version: 0.1.0
+Version: 0.1.2
 Summary: JSON Web Signatures implementation in Python
 Home-page: http://github.com/brianlovesdata/python-jws
 Author: Brian J Brennan
@@ -12,13 +12,12 @@ Description: python-jws
         
         Installing
         ----------
-            $ git://github.com/brianlovesdata/python-jws.git
-            $ python setup.py install
+            $ pip install jws
         
         
         
         Algorithms
-        ---------- 
+        ----------
         The JWS spec reserves several algorithms for cryptographic signing. Out of the 9, this library currently supports 7:
         
         
@@ -52,8 +51,8 @@ Description: python-jws
         
         Usage
         -----
-        Let's check out some examples.    
-            
+        Let's check out some examples.
+        
             >>> import jws
             >>> header  = { 'alg': 'HS256' }
             >>> payload = { 'claim': 'JSON is the raddest.', 'iss': 'brianb' }
@@ -63,10 +62,10 @@ Description: python-jws
             >>> jws.verify(header, payload, signature, 'badbadbad')
             Traceback (most recent call last):
             ...
-            jws.exceptions.SignatureError: Could not validate signature    
+            jws.exceptions.SignatureError: Could not validate signature
         
         Now with a real key!
-            
+        
             >>> import ecdsa
             >>> sk256 = ecdsa.SigningKey.generate(curve=ecdsa.NIST256p)
             >>> vk = sk256.get_verifying_key()
@@ -77,8 +76,8 @@ Description: python-jws
         
         Advanced Usage
         --------------
-        Make this file    
-            
+        Make this file
+        
             # file: sillycrypto.py
             import jws
             from jws.algos import AlgorithmBase, SignatureError
@@ -101,7 +100,7 @@ Description: python-jws
             ]
         
         And in an interpreter:
-            
+        
             >>> import jws
             >>> header = { 'alg': 'F7U12' }
             >>> payload = { 'claim': 'wutt' }
@@ -109,7 +108,7 @@ Description: python-jws
             Traceback (most recent call last):
               ....
             jws.exceptions.AlgorithmNotImplemented: "F7U12" not implemented.
-            >>> 
+            >>>
             >>> import sillycrypto
             >>> sig = jws.sign(header, payload, '<trollface>')
             >>> jws.verify(header, payload, sig, '<trollface>')
@@ -124,11 +123,11 @@ Description: python-jws
         ---------
         
         Check out
-        https://github.com/brianlovesdata/python-jws/blob/master/examples/minijwt.py
+        https://github.com/brianloveswords/python-jws/blob/master/examples/minijwt.py
         for a 14-line implemention of JWT.
         
         See
-        https://github.com/brianlovesdata/python-jws/blob/master/examples/ragecrypto.py
+        https://github.com/brianloveswords/python-jws/blob/master/examples/ragecrypto.py
         for a rage-comic inspired cryptography extension.
         
         TODO
