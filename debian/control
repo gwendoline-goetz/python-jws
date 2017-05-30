@@ -1,4 +1,4 @@
-Source: pyjws
+Source: jws
 Section: python
 Priority: optional
 Maintainer: Philippe Goetz <philippe.goetz@siemens.com>
