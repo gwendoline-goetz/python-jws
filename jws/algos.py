@@ -1,6 +1,10 @@
+from __future__ import absolute_import
+
+import sys
 import re
 
-from exceptions import SignatureError, RouteMissingError, RouteEndpointError
+from .exceptions import SignatureError, RouteMissingError, RouteEndpointError
+from .utils import to_bytes_2and3, constant_time_compare
 
 class AlgorithmBase(object):
     """Base for algorithm support classes."""
@@ -31,11 +35,15 @@ class HMAC(HasherBase):
     """
     def sign(self, msg, key):
         import hmac
-        utfkey = unicode(key).encode('utf8')
+        if sys.version < '3':
+            utfkey = unicode(key).encode('utf8')
+        else:
+            utfkey = to_bytes_2and3(key)
+            msg = to_bytes_2and3(msg)
         return hmac.new(utfkey, msg, self.hasher).digest()
 
     def verify(self, msg, crypto, key):
-        if not self.sign(msg, key) == crypto:
+        if not constant_time_compare(self.sign(msg, key), crypto):
             raise SignatureError("Could not validate signature")
         return True
 
@@ -43,24 +51,8 @@ class RSABase(HasherBase):
     """
     Support for RSA signing.
 
-    The ``Crypto`` package is required. However...
+    The ``Crypto`` package >= 2.5 is required.
 
-    NOTE: THIS ALGORITHM IS CRIPPLED AND INCOMPLETE
-
-    Section 7.2 of the specification (found at
-    http://self-issued.info/docs/draft-jones-json-web-signature.html)
-    describes the algorithm for creating a JWS with RSA. It is mandatory to
-    use RSASSA-PKCS1-V1_5-SIGN and either SHA256, 385 or 512.
-
-    Problem 1: The Crypto library doesn't currently support PKCS1-V1_5. There
-    is a fork that does have support:
-
-    https://github.com/Legrandin/pycrypto/tree/pkcs1
-
-    Problem 2: The PKCS signing method requires a Crypto.Hash class.
-    Crypto.Hash doesn't yet have support anything above SHA256.
-
-    Bottom line, you should probably use ECDSA instead.
     """
     supported_bits = (256,384,512,) #:Seems to worka > 256
 
@@ -76,7 +68,7 @@ class RSABase(HasherBase):
         """
         import Crypto.PublicKey.RSA as RSA
 
-        self.hashm.update(msg)
+        self.hashm.update(msg.encode('UTF-8'))
         ## assume we are dealing with a real key
         # private_key = RSA.importKey(key)
         return self.padder.new(key).sign(self.hashm)             # pycrypto 2.5
@@ -90,7 +82,7 @@ class RSABase(HasherBase):
         """
         import Crypto.PublicKey.RSA as RSA
 
-        self.hashm.update(msg)
+        self.hashm.update(msg.encode('UTF-8'))
         private_key = key
         if not isinstance(key, RSA._RSAobj):
             private_key = RSA.importKey(key)
@@ -129,6 +121,7 @@ class ECDSA(HasherBase):
         ##  assume the signing key is already a real key
         # curve = getattr(ecdsa, self.bits_to_curve[self.bits])
         # signing_key = ecdsa.SigningKey.from_string(key, curve=curve)
+        msg = to_bytes_2and3(msg)
         return key.sign(msg, hashfunc=self.hasher)
 
     def verify(self, msg, crypto, key):
@@ -144,7 +137,7 @@ class ECDSA(HasherBase):
         if not isinstance(vk, ecdsa.VerifyingKey):
             vk = ecdsa.VerifyingKey.from_string(key, curve=curve)
         try:
-            vk.verify(crypto, msg, hashfunc=self.hasher)
+            vk.verify(crypto, to_bytes_2and3(msg), hashfunc=self.hasher)
         except ecdsa.BadSignatureError:
             raise SignatureError("Could not validate signature")
         except AssertionError:
@@ -163,25 +156,25 @@ def find(name):
         if match:
             return (endpoint, match)
     raise RouteMissingError('endpoint matching %s could not be found' % name)
-    
+
 def resolve(endpoint, match):
     if callable(endpoint):
         # send result back through
         return resolve(endpoint(**match.groupdict()), match)
-    
+
     # get the sign and verify methods from dict or obj
     try:
         crypt = { 'sign': endpoint['sign'], 'verify': endpoint['verify'] }
     except TypeError:
         try:
             crypt = { 'sign': endpoint.sign, 'verify': endpoint.verify }
-        except AttributeError, e:
+        except AttributeError as e:
             raise RouteEndpointError('route enpoint must have sign, verify as attributes or items of dict')
     # verify callability
     try:
         assert callable(crypt['sign'])
         assert callable(crypt['verify'])
-    except AssertionError, e:
+    except AssertionError as e:
         raise RouteEndpointError('sign, verify of endpoint must be callable')
     return crypt
 

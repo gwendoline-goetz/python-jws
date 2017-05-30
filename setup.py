@@ -6,13 +6,13 @@ def read(fname):
 
 setup(
     name = "jws",
-    version = "0.1.2",
+    version = "0.1.3",
     author = "Brian J Brennan",
-    author_email = "brian@nyhacker.org",
+    author_email = "brianloveswords@gmail.com",
     description = ("JSON Web Signatures implementation in Python"),
     license = "MIT",
     keywords = "jws json web security signing",
-    url = "http://github.com/brianlovesdata/python-jws",
+    url = "http://github.com/brianloveswords/python-jws",
     packages=['jws'],
     long_description=read('README.md'),
     classifiers=[
@@ -20,4 +20,5 @@ setup(
         "Topic :: Utilities",
         "License :: OSI Approved :: MIT License",
     ],
+    test_suite = 'nose.collector',
 )
