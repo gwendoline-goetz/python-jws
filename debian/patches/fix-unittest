@@ -1,0 +1,15 @@
+Description: fix unittest
+Author: Philippe Goetz <philippe.goetz@siemens.com>
+Last-Update: 2017-05-30
+
+--- pyjws-0.1.2.orig/jws/tests.py
++++ pyjws-0.1.2/jws/tests.py
+@@ -142,7 +142,7 @@ class TestJWS_hmac(unittest.TestCase):
+     def test_invalid_hmac(self):
+         header = {'alg': 'HS512'}
+         sig = jws.sign(header, self.payload, 'secret')
+-        self.assertRaises(jws.SignatureError(header, self.payload, sig, 'failwhale'))
++        self.assertRaises(jws.SignatureError, jws.verify, header, self.payload, sig, 'failwhale')
+ 
+ class TestJWS_rsa(unittest.TestCase):
+     private = rsa.generate(2048)

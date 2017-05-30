@@ -1,0 +1,5 @@
+Tests: python-jwt
+Depends: python-all, python-cryptography, python-pytest, python-pytest-cov, python-pytest-runner
+
+Tests: python3-jwt
+Depends: python3-all, python3-cryptography, python3-pytest, python3-pytest-cov, python3-pytest-runner

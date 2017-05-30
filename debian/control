@@ -1,0 +1,33 @@
+Source: pyjws
+Section: python
+Priority: optional
+Maintainer: Philippe Goetz <philippe.goetz@siemens.com>
+Build-Depends:
+ debhelper (>= 9),
+ dh-python,
+ python-all,
+ python-setuptools,
+ python3-all,
+ python3-setuptools
+Standards-Version: 3.9.8
+X-Python-Version: >= 2.7
+X-Python3-Version: >= 3.3
+Homepage: https://github.com/brianloveswords/python-jws.git
+
+Package: python-jws
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends}
+Recommends: python-crypto, python-ecdsa
+Description: JSON Web Signatures implementation in Python
+ A Python implementation of [JSON Web Signatures draft 02]
+ (http://self-issued.info/docs/draft-jones-json-web-signature.html)
+
+Package: python3-jws
+Architecture: all
+Depends: ${misc:Depends}, ${python3:Depends}
+Recommends: python3-crypto, python3-ecdsa
+Description: JSON Web Signatures implementation in Python
+ A Python implementation of [JSON Web Signatures draft 02]
+ (http://self-issued.info/docs/draft-jones-json-web-signature.html)
+ .
+ This package contains the Python 3 version of the library.
